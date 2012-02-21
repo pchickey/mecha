@@ -1,5 +1,5 @@
 module Language.Mecha.Types
-  ( Vector, Vertex, Normal, Color
+  ( Vector, Vertex, Normal, Color, Triangle
   , Moveable  (..)
   , Scaleable (..)
   , Colorable (..)
@@ -18,6 +18,7 @@ type Vector = (Double, Double, Double)
 type Vertex = Vector
 type Normal = Vector
 type Color  = (Double, Double, Double, Double)
+type Triangle = (Int, Int, Int)
 
 class Moveable a where
   move    :: Vector -> a -> a
