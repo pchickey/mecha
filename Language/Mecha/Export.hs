@@ -37,7 +37,8 @@ povray a = unlines
           ymax = max y1 y2
           zmin = min z1 z2
           zmax = max z1 z2
-	Torus d1 d2  -> ("torus", printf "%f, %f" (d1 / 2) (d2 / 2))
+        Torus d1 d2  -> ("torus", printf "%f, %f" (d1 / 2) (d2 / 2))
+        Polyhedron _ _ -> error "Export of Polyhedron to povray not supported"
     Union        a b   -> printf "merge        {\n%s%s}\n" (indent $ solid a) (indent $ solid b)
     Intersection a b   -> printf "intersection {\n%s%s}\n" (indent $ solid a) (indent $ solid b)
     Difference   a b   -> printf "difference   {\n%s%s}\n" (indent $ solid a) (indent $ solid b)
@@ -89,6 +90,12 @@ openSCAD a = unlines
           zmin = min z1 z2
           zmax = max z1 z2
         Torus d1 d2 -> printf "rotate_extrude($fn = 100) translate([%f, 0, 0]) circle(%f, $fn = 100);" (d1 / 2) (d2 / 2)
+        Polyhedron pts tris -> printf "polyhedron( points = %s, triangles = %s );" renderedpts renderedtris
+          where
+          threevec :: (a, a, a) -> [a]
+          threevec (a, b, c) = [a, b, c]
+          renderedpts = show $ map threevec pts
+          renderedtris = show $ map threevec tris
 
 indent :: String -> String
 indent a = unlines [ "\t" ++ l | l <- lines a ]
