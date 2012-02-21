@@ -11,6 +11,7 @@ module Language.Mecha.Solid
   , tube
   , radial
   , torus
+  , polyhedron
   ) where
 
 import Language.Mecha.Types
@@ -22,11 +23,13 @@ data Solid
   | Difference   Solid Solid
   deriving Eq
 
+
 data Primitive
   = Sphere Double                -- ^ Diameter.
   | Cone   Double Double Double  -- ^ Bottom diameter, top diameter, height.
   | Box (Double, Double) (Double, Double) (Double, Double)  -- ^ (x min, x max) (y min, ymax) (z min, z max).
   | Torus  Double Double         -- ^ Major diameter, minor diameter.
+  | Polyhedron [Vector] [Triangle] -- ^ List of points, list of triangles using points list indicies
   deriving Eq
 
 data Transform
@@ -106,3 +109,8 @@ radial f n = unions [ rotateZ a $ f a | i <- [0 .. n - 1], let a = 2 * pi * from
 torus :: Double -> Double -> Solid
 torus d1 d2 = primitive $ Torus d1 d2
 
+-- | A polyhedron is a list of points, and a list of triangles. Each triangle
+--   element is an index into the list of points.
+
+polyhedron :: [Vector] -> [Triangle] -> Solid
+polyhedron pts tris = primitive $ Polyhedron pts tris
