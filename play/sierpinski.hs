@@ -3,7 +3,8 @@ import qualified Language.Mecha as M
 import Language.Mecha (Vector)
 
 main :: IO ()
-main = do writeFile "sierpinski.scad" $ M.openSCAD $ M.scaleAll 10 $ sierpinski
+main = do writeFile "sierpinski.scad" $ M.openSCAD $ M.scaleAll 10 $ 
+            mechanical $ cosierpinski 4
 
 
 class Mechanical a where
@@ -23,8 +24,14 @@ instance Mechanical Prim where
   mechanical (Difference a b) = M.difference (mechanical a) (mechanical b)
 
 
-sierpinski :: M.Solid
-sierpinski =  mechanical $ iter $ iter $ iter $ iter (Tetrahedron 1)
+cosierpinski :: Int -> Prim
+cosierpinski n = Difference (head sierpinskis)  (sierpinskis !! n)
+
+sierpinski :: Int -> Prim
+sierpinski n = sierpinskis !! n
+
+sierpinskis :: [Prim]
+sierpinskis = iterate gasket (Tetrahedron 1)
 
 union :: Prim -> Prim -> Prim
 union a b = Union a b
@@ -43,8 +50,8 @@ unitTetrahedron =
 inner :: Prim -> Prim
 inner s = Offset (0, (sqrt 3) / 3, (sqrt 3) / 4) $ FlipX $ s
 
-iter :: Prim -> Prim
-iter (Tetrahedron i) = unions
+gasket :: Prim -> Prim
+gasket (Tetrahedron i) = unions
   [ first  $ Tetrahedron i2
   , second $ Tetrahedron i2
   , third  $ Tetrahedron i2
@@ -56,7 +63,5 @@ iter (Tetrahedron i) = unions
   third  = Offset (i/4, i * (sqrt 3) / 4, 0)
   fourth = Offset (i/4, i * (sqrt 3) / 12, i * (sqrt 3) / 4)
   i2 = i / 2 + 0.001
-
-iter (Offset v prim) = Offset v (iter prim)
-iter (Union p1 p2) = Union (iter p1) (iter p2)
-iter _ = error "blah"
+gasket (Offset v prim) = Offset v (gasket prim)
+gasket (Union p1 p2) = Union (gasket p1) (gasket p2)
